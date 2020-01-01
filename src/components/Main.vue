@@ -84,86 +84,6 @@
         </template>
       </amplify-connect>
     </section>
-    <!--  
-
-      アイテム管理サンプル
-
-    -->
-    <h3>Item List Sample</h3>
-    <section>
-      <!--  input による データの追加 -->
-      <amplify-connect :mutation="createItemMutation" @done="onCreateFinished">
-        <template slot-scope="{loading, mutate}">
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="message">Id</span>
-            </div>
-            <input v-model="item.itemId" type="text" class="form-control" placeholder="item id" aria-label="itemId" aria-describedby="itemId">
-          </div>
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="message">Name</span>
-            </div>
-            <input v-model="item.attributes.name" type="text" class="form-control" placeholder="name" aria-label="name" aria-describedby="name">
-          </div>
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <label class="input-group-text" for="status">Status</label>
-            </div>
-            <select v-model="item.status" class="custom-select" id="status">
-              <option value="1">True</option>
-              <option value="0">False</option>
-            </select>
-          </div>
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="message">Description</span>
-            </div>
-            <input v-model="item.attributes.description" type="text" class="form-control" placeholder="description" aria-label="description" aria-describedby="description">
-          </div>
-          <button type="button" class="btn btn-primary" :disabled="disableItemListSubmitButton(loading)" @click="mutate">Save</button>
-        </template>
-      </amplify-connect>
-    </section>
-    <section>
-      <!--  table による 要素一覧 の表示 -->
-      <amplify-connect :query="listItemsQuery" :subscription="createItemSubscription" :onSubscriptionMsg="onCreateItem">>
-        <template slot-scope="{loading, data, errors}">
-          <div v-if="loading">Loading...</div>
-          <div v-else-if="errors.length > 0"></div>
-          <div v-else-if="data">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Item Id</th>
-                  <th scope="col">Name</th>
-                  <th scope="col">Updated At</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Change status</th>
-                  <th scope="col">Created At</th>
-                  <th scope="col">Description</th>
-                  <th scope="col">Delete</th>
-                </tr>
-              </thead>
-              <tbody v-for="(item, index) in data.listItems.items" v-bind:key="item">
-                <tr>
-                  <th scope="row">{{ (index+1) }}</th>
-                  <td>{{ item.itemId }}</td>
-                  <td>{{ item.attributes.name }}</td>
-                  <td>{{ item.date.updatedAt }}</td>
-                  <td>{{ item.status }}</td>
-                  <td><button type="button" class="btn btn-primary" @click="updateItemMutation(item.itemId, item.date.createdAt, item.status)">Change status</button></td>
-                  <td>{{ item.date.createdAt }}</td>
-                  <td>{{ item.attributes.description }}</td>
-                  <td><button type="button" class="btn btn-primary" @click="deleteItemMutation(item.itemId)">Delete</button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </template>
-      </amplify-connect>
-    </section>
     <section>
       <div v-if="signInStatus === 'signedIn'">
         <amplify-sign-out></amplify-sign-out>
@@ -194,24 +114,6 @@ Logger.LOG_LEVEL = 'DEBUG';
 // グローバルのロギングレベルが優先される（=DEBUG）
 const logger = new Logger('amplify-logger', 'INFO');
 */
-
-// ListItems クエリ
-const ListItemsQuery = `query ListItems {
-  listItems {
-    items {
-      itemId
-      status
-      attributes {
-        name
-        description
-      }
-      date {
-        createdAt
-        updatedAt
-      }
-    }
-  }
-}`;
 
 export default { 
   name: 'Amplify Demo', 
@@ -251,73 +153,6 @@ export default {
     createChatSubscription() {
       //logger.info('createChatSubscription');
       return this.$Amplify.graphqlOperation(subscriptions.onCreateChat);
-    },
-    updateItemMutation: function() {
-      return function(itemId, createdAt, prevStatus) {
-        //logger.info('updateItemMutation');
-
-        var date = new Date() ;
-        var updatedAt = date.getTime() ;
-
-        return API.graphql(graphqlOperation(mutations.updateItem, {input: 
-          {
-            itemId: itemId,
-            // 三項演算子
-            status: (prevStatus === 1) ? 0 : 1,
-            date: {
-              createdAt: createdAt,
-              updatedAt: updatedAt
-            }
-          }
-        }));
-      }
-    },
-    deleteItemMutation: function() {
-      return function(itemId) {
-        //logger.info('deleteItemMutation');
-        return API.graphql(graphqlOperation(mutations.deleteItem, {input: 
-          {
-            itemId: itemId
-          }
-        }));
-      }
-    },
-    disableItemListSubmitButton: function() {
-      return function(loading) {
-        return loading || !this.item.itemId || !this.item.attributes.name || !this.item.attributes.description;
-      }
-    },
-    // createItem クエリの実行
-    createItemMutation() {
-      //logger.info('createItemMutation');
-
-      var date = new Date() ;
-      var createdAt = date.getTime() ;
-
-      return this.$Amplify.graphqlOperation(mutations.createItem, {input:
-        {
-          itemId: this.item.itemId, 
-          status: this.item.status, 
-          attributes: {
-            name: this.item.attributes.name, 
-            description: this.item.attributes.description
-          },
-          date: {
-            createdAt: createdAt,
-            updatedAt: createdAt
-          }
-        }
-      });
-    },
-    // listItems クエリの実行
-    listItemsQuery() {
-      //logger.info('listItemsQuery');
-      return this.$Amplify.graphqlOperation(ListItemsQuery);
-    },
-    // onCreateItem クエリの実行
-    createItemSubscription() {
-      //logger.info('createItemSubscription');
-      return this.$Amplify.graphqlOperation(subscriptions.onCreateItem);
     }
   },
   methods: {
@@ -330,12 +165,6 @@ export default {
       //logger.info('onCreateChat');
       const newChat = newData.onCreateChat;
       prevData.data.listChats.items.push(newChat);
-      return prevData.data;
-    },
-    onCreateItem(prevData, newData) {
-      //logger.info('onCreateItem');
-      const newItem = newData.onCreateItem;
-      prevData.data.listItems.items.push(newItem);
       return prevData.data;
     }
   },

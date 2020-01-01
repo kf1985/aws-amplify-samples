@@ -13,20 +13,3 @@ type Chat @model @key(fields: ["userId", "createdAt"]) {
   name: String!
   message: String
 }
-
-type Item @model @key(fields: ["itemId"]) {
-  itemId: ID!
-  status: Int!
-  attributes: ItemAttribute
-  date: ItemDate
-}
-
-type ItemAttribute {
-  name: String
-  description: String
-}
-
-type ItemDate {
-  createdAt: AWSTimestamp!
-  updatedAt: AWSTimestamp!
-}
