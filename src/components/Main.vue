@@ -94,8 +94,8 @@
 
 <script>
 /* Amplify */
-// aws-amplify ライブラリの Auth, API, graphqlOperation モジュールをインポート
-import { Auth, API, graphqlOperation } from "aws-amplify" 
+// aws-amplify ライブラリの Auth モジュールをインポート
+import { Auth } from "aws-amplify" 
 // aws-amplify-vue ライブラリの AmplifyEventBus モジュールをインポート （イベントの発行とリッスン）
 import { AmplifyEventBus } from 'aws-amplify-vue' 
 // GraphQL Query 
