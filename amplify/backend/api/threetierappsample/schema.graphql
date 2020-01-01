@@ -1,0 +1,32 @@
+# @model: 最上位のエンティティ
+#         @model 単位でデータが DynamoDB に格納される
+#         queries、mutations, subscriptions が生成される
+#
+# @key:   インデックスの指定
+#         field HASHキーおよびSORTキーを指定
+#         name  セカンダリインデックスを指定
+type Chat @model @key(fields: ["userId", "createdAt"]) {
+  userId: ID!
+  # AWSTimestamp:  Unixtime
+  # Unixtime を Int型 に格納するとデータ取得時に Long 変換エラーが発生
+  createdAt: AWSTimestamp!
+  name: String!
+  message: String
+}
+
+type Item @model @key(fields: ["itemId"]) {
+  itemId: ID!
+  status: Int!
+  attributes: ItemAttribute
+  date: ItemDate
+}
+
+type ItemAttribute {
+  name: String
+  description: String
+}
+
+type ItemDate {
+  createdAt: AWSTimestamp!
+  updatedAt: AWSTimestamp!
+}
